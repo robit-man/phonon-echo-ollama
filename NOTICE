@@ -1,0 +1,20 @@
+Phonon Echo Ollama extension
+Copyright 2026 robit-man
+
+Runtime source was extracted from robit-man/fine_tuning_suite at
+726dace074e9f47b87f5bd3aeee1bd69ba250dd5 and adapted into the standalone
+phonon_echo package. New extension and preparation code is Apache-2.0.
+
+The Ollama patch modifies official Ollama v0.40.11 at
+675150d6ad2747df1e218ef59de9194bc4a7e538. Ollama is MIT licensed;
+see phonon_echo/licenses/Ollama-MIT.txt. Modifications add model import,
+an Ollama-managed CPU runner, reference-audio transport, and regression tests.
+
+Model weights are downloaded separately from Ollama or their pinned upstream
+repositories. Phonon and Mimi use Apache-2.0. OpenVoice V2 uses MIT. Whisper's
+model card uses Apache-2.0 and its upstream code uses MIT. Complete license
+texts are in phonon_echo/licenses. The OpenVoice architecture is installed
+from its pinned MIT-licensed upstream source, without optional demo packages.
+
+This project is not affiliated with or endorsed by Ollama, Gradium, MyShell,
+Hugging Face, or OpenAI.

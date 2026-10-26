@@ -1,0 +1,64 @@
+{
+  "tested_on": "2026-10-26",
+  "official_ollama_version": "0.40.11",
+  "official_tts": {
+    "tag": "robit/phonon-echo:tts-v1",
+    "manifest_sha256": "6fc9fdcb2a81d1beaf9dd82246fd670a52120687687c4356322a63b4f2fde1eb",
+    "fresh_registry_pull": true,
+    "wav_pcm_passed": true,
+    "held_out_sentences": [
+      "The small robot speaks clearly.",
+      "The blue bird sings softly.",
+      "This voice comes from the model weights."
+    ],
+    "transcription_after_case_punctuation_normalization": "exact for all three"
+  },
+  "extension": {
+    "tag": "robit/phonon-echo:clone-asr-v1",
+    "manifest_sha256": "b0df2b8cdeb97d80d7ad8dd967d7d9ab49202d23cb891d99cd0662fdb3a978ce",
+    "default_A_B_A_sentence": "The small robot speaks clearly.",
+    "default_A_B_A_transcription": "exact for all four",
+    "speaker_verification": {
+      "metric": "microsoft/wavlm-base-plus-sv",
+      "scores": {
+        "default": {
+          "ref-a": 0.7713035345077515,
+          "ref-b": 0.9642231464385986
+        },
+        "a-first": {
+          "ref-a": 0.872216522693634,
+          "ref-b": 0.8367047905921936
+        },
+        "b": {
+          "ref-a": 0.6960444450378418,
+          "ref-b": 0.9645748138427734
+        },
+        "a-second": {
+          "ref-a": 0.844668447971344,
+          "ref-b": 0.8401987552642822
+        }
+      },
+      "a_repeat_cosine": 0.9944763779640198,
+      "speaker_isolation_passed": true
+    },
+    "references": "synthetic evaluation fixtures; recordings and embeddings not distributed"
+  },
+  "scope": "bounded fixtures, not a general benchmark",
+  "standalone_repository": {
+    "python": "3.12.13",
+    "torch": "2.12.0+cpu",
+    "python_tests_passed": 32,
+    "go_packages_passed": [
+      "manifest",
+      "create",
+      "mlxrunner",
+      "server"
+    ],
+    "extension_version": "0.40.11+phonon-echo.1",
+    "new_package": "phonon_echo",
+    "model_blob_digest": "b0df2b8cdeb97d80d7ad8dd967d7d9ab49202d23cb891d99cd0662fdb3a978ce",
+    "actual_ollama_speech_asr_default_A_B_A_passed": true,
+    "raw_pcm_passed": true,
+    "cuda_used": false
+  }
+}

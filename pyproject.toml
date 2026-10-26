@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phonon-echo-ollama"
+version = "0.1.0"
+description = "Official Ollama Phonon TTS preparation and optional reference-cloning/ASR runner"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+readme = "README.md"
+dynamic = ["dependencies"]
+
+[project.scripts]
+phonon-echo = "phonon_echo.api:main"
+phonon-echo-native = "phonon_echo.native_tts:main"
+
+[project.urls]
+Repository = "https://github.com/robit-man/phonon-echo-ollama"
+Models = "https://ollama.com/robit/phonon-echo"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["phonon_echo*"]
+
+[tool.setuptools.package-data]
+phonon_echo = ["licenses/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
