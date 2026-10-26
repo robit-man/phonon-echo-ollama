@@ -9,7 +9,7 @@ Ollama-managed reference-cloning and ASR runner.
 | `robit/phonon-echo:tts-v1` | TTS | Not needed |
 | `robit/phonon-echo:latest` | Same native TTS model | Not needed |
 | `robit/phonon-echo:hybrid-v1` | Same native TTS model; compatibility alias | Not needed |
-| `robit/phonon-echo:clone-asr-v1` | Unsupported composite architecture | TTS, reference cloning, English ASR |
+| `robit/phonon-echo:clone-asr-v2` | Unsupported composite architecture | TTS, baked female/robot/male profiles, reference cloning, English ASR |
 
 [OLLAMA_README.md](OLLAMA_README.md) is the ready-to-publish model-page README.
 
@@ -37,7 +37,7 @@ The TTS tags require no Python inference worker or custom Ollama binary.
 This optional adapter extends Ollama 0.40.11's importer and managed-runner path.
 It builds a **separate executable** and leaves your installed official Ollama
 binary alone. The new executable identifies itself as
-`0.40.11+phonon-echo.1`. Stock TTS and the companion are separate model tags;
+`0.40.11+phonon-echo.2`. Stock TTS and the companion are separate model tags;
 installing the companion does not make reference cloning or ASR native to the
 unmodified official binary.
 
@@ -70,8 +70,13 @@ kept in ignored `.cache/` and `bin/` directories.
 The daemon listens on `127.0.0.1:11471`. From another terminal in this checkout:
 
 ```bash
-OLLAMA_HOST=127.0.0.1:11471 bin/ollama pull robit/phonon-echo:clone-asr-v1
+OLLAMA_HOST=127.0.0.1:11471 bin/ollama pull robit/phonon-echo:clone-asr-v2
 ```
+
+For an existing checkout, run `git pull`, repeat setup and build, then restart
+the extension daemon. Patch revisions build in separate source directories, so
+upgrading does not overwrite an older patched checkout. The older
+`clone-asr-v1` model remains available without the new baked profiles.
 
 The launch script supplies these runner settings automatically:
 
@@ -86,7 +91,23 @@ Its model pull does not require MLX. The official CUDA TTS workload is separate;
 on hosts using a GPU lease broker, reserve the exact GPU scope before starting
 that official workload.
 
-### Clone a reference voice
+### Use the baked default profiles
+
+`clone-asr-v2` ships `default`, `female`, `robot`, and `male`. The three cloned
+profiles are registered model buffers and travel with the checkpoint. You do
+not need the source recordings or a separate enrollment directory.
+
+```bash
+curl http://127.0.0.1:11471/v1/audio/speech \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"robit/phonon-echo:clone-asr-v2","input":"The small robot speaks clearly.","voice":"robot"}' \
+  --output robot.wav
+```
+
+Use `female`, `male`, or `default` in the same field. `/api/show` lists the
+available names. Source recordings are not included in the model or this repo.
+
+### Clone another reference voice
 
 Create a request using a short mono `reference.wav`:
 
@@ -97,7 +118,7 @@ import json
 from pathlib import Path
 
 Path("request.json").write_text(json.dumps({
-    "model": "robit/phonon-echo:clone-asr-v1",
+    "model": "robit/phonon-echo:clone-asr-v2",
     "input": "The small robot speaks clearly.",
     "voice": "default",
     "reference_audio": {
@@ -120,7 +141,7 @@ create a persistent speaker profile.
 
 ```bash
 curl http://127.0.0.1:11471/v1/audio/transcriptions \
-  -F model=robit/phonon-echo:clone-asr-v1 \
+  -F model=robit/phonon-echo:clone-asr-v2 \
   -F file=@recording.wav
 ```
 
@@ -151,6 +172,21 @@ downloads the pinned source components. `phonon-echo build --help` describes
 composition into one safetensors export. Source revisions are recorded in
 [phonon_echo/sources.py](phonon_echo/sources.py). Inference from the published
 Ollama tag does not need this preparation step.
+
+To bake additional named profiles from your own references into a new export:
+
+```bash
+.venv/bin/python -m phonon_echo.bake_voices \
+  --models-directory "$HOME/.ollama/models" \
+  --source-model robit/phonon-echo:clone-asr-v1 \
+  --voice narrator=reference.wav --out outputs/my-voices
+```
+
+The source model must already be installed in that model store. Baking verifies
+the source blobs, encodes the recordings on CPU, and saves the embeddings as
+`voices.NAME` tensors. Recordings and source filenames are excluded from the
+export; a separate local receipt records hashes. Import the exported directory
+with the extension's `bin/ollama create` command.
 
 ## Validation
 

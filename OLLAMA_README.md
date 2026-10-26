@@ -8,7 +8,23 @@ speech-recognition companion.
 | `tts-v1` | Text to speech, default voice | Unmodified official Ollama |
 | `latest` | Alias of `tts-v1` | Unmodified official Ollama |
 | `hybrid-v1` | Compatibility alias of `tts-v1` | Unmodified official Ollama |
-| `clone-asr-v1` | Reference voice cloning, TTS, English ASR | Optional Phonon Echo extension |
+| `clone-asr-v2` | Baked voice profiles, reference cloning, TTS, English ASR | Phonon Echo extension 0.2.0 |
+
+## Included voice profiles
+
+The **`clone-asr-v2`** companion includes these prepared profiles in its weights:
+
+| `voice` | Profile |
+| --- | --- |
+| `default` | Original public Phonon voice |
+| `female` | Cloned female voice |
+| `robot` | Cloned robotic announcer voice |
+| `male` | Cloned male voice |
+
+Select a profile by name. No reference recording or enrollment request is
+needed to use a baked profile. These profiles use the companion extension;
+the official-binary TTS tags provide `default`. The older `clone-asr-v1` tag
+does not include the new profiles.
 
 ## Text to speech
 
@@ -41,7 +57,7 @@ as `ollama-linux-amd64-mlx.tar.zst`. See the
 
 ## Optional voice cloning and ASR
 
-Use **`robit/phonon-echo:clone-asr-v1`** with the public
+Use **`robit/phonon-echo:clone-asr-v2`** with the public
 [Phonon Echo adapter and runner extension](https://github.com/robit-man/phonon-echo-ollama#cloning-and-asr-extension).
 This companion requires the extension; stock Ollama does not execute its
 reference encoder, voice converter, or Whisper graph. The stock speech API has
@@ -50,8 +66,21 @@ no per-request reference-audio field.
 After installing the extension and starting it on port 11471:
 
 ```bash
-OLLAMA_HOST=127.0.0.1:11471 ./bin/ollama pull robit/phonon-echo:clone-asr-v1
+OLLAMA_HOST=127.0.0.1:11471 ./bin/ollama pull robit/phonon-echo:clone-asr-v2
 ```
+
+Use a baked voice:
+
+```bash
+curl http://127.0.0.1:11471/v1/audio/speech \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"robit/phonon-echo:clone-asr-v2","input":"Hello from Phonon Echo.","voice":"female"}' \
+  --output female.wav
+```
+
+Set `voice` to `robot` or `male` for the other prepared profiles. Run
+`git pull`, `bash scripts/setup.sh`, and `bash scripts/build-ollama.sh` when
+upgrading an older adapter checkout; this release needs the updated runtime.
 
 Generate speech conditioned on a local reference WAV:
 
@@ -62,7 +91,7 @@ import urllib.request
 from pathlib import Path
 
 payload = {
-    "model": "robit/phonon-echo:clone-asr-v1",
+    "model": "robit/phonon-echo:clone-asr-v2",
     "input": "The small robot speaks clearly.",
     "voice": "default",
     "reference_audio": {
@@ -83,15 +112,16 @@ Transcribe English audio with the same companion tag:
 
 ```bash
 curl http://127.0.0.1:11471/v1/audio/transcriptions \
-  -F model=robit/phonon-echo:clone-asr-v1 \
+  -F model=robit/phonon-echo:clone-asr-v2 \
   -F file=@recording.wav
 ```
 
 The extension currently runs on CPU. Use short, clean mono references; the
 speech request body is limited to 1 MiB. No reference transcript is required.
-ASR accepts English recordings up to 30 seconds. Reference recordings and
-derived speaker embeddings are processed locally and are not included in the
-published weights.
+ASR accepts English recordings up to 30 seconds. The three prepared speaker
+embeddings are baked into the companion weights. Their source recordings are
+not distributed. Per-request reference recordings are processed locally and
+are not added to the published model.
 
 ## Models and validation
 
@@ -108,6 +138,12 @@ Independent WavLM verification measured 0.872 cosine similarity to reference A
 for the first A output, and 0.994 similarity between the repeated A outputs.
 These are bounded synthetic-fixture results, not a general speaker benchmark.
 [Validation details](https://github.com/robit-man/phonon-echo-ollama/blob/main/docs/validation.json).
+
+The prepared-profile release also passed WAV/PCM, exact sentence transcription,
+and female/robot/male/female isolation checks. Each intended reference scored
+higher against its own profile output than against the other profile outputs.
+These checks establish profile conditioning and text fidelity on the tested
+fixtures; the profiles are cloned approximations of the references.
 
 ## Sources and licenses
 

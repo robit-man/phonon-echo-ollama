@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phonon-echo-ollama"
-version = "0.1.0"
+version = "0.2.0"
 description = "Official Ollama Phonon TTS preparation and optional reference-cloning/ASR runner"
 requires-python = ">=3.12"
 license = {text = "Apache-2.0"}
@@ -14,6 +14,7 @@ dynamic = ["dependencies"]
 [project.scripts]
 phonon-echo = "phonon_echo.api:main"
 phonon-echo-native = "phonon_echo.native_tts:main"
+phonon-echo-bake-voices = "phonon_echo.bake_voices:main"
 
 [project.urls]
 Repository = "https://github.com/robit-man/phonon-echo-ollama"

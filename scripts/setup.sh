@@ -2,7 +2,9 @@
 set -euo pipefail
 repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_dir"
-uv venv --python "${PHONON_PYTHON:-3.12}" .venv
+if [[ ! -x .venv/bin/python ]]; then
+  uv venv --python "${PHONON_PYTHON:-3.12}" .venv
+fi
 # Install the CPU build first; it also satisfies requirements.txt's torch pin.
 uv pip install --python .venv/bin/python --index-url https://download.pytorch.org/whl/cpu 'torch==2.12.0'
 uv pip install --python .venv/bin/python -r requirements.txt

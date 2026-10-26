@@ -60,5 +60,51 @@
     "actual_ollama_speech_asr_default_A_B_A_passed": true,
     "raw_pcm_passed": true,
     "cuda_used": false
+  },
+  "baked_voice_profiles_v2": {
+    "voices": [
+      "default",
+      "female",
+      "male",
+      "robot"
+    ],
+    "extension_version": "0.40.11+phonon-echo.2",
+    "wav_pcm_passed": true,
+    "all_profile_sentence_transcriptions_exact": true,
+    "speaker_scores": {
+      "default": {
+        "female": 0.7595304250717163,
+        "robot": 0.5534123182296753,
+        "male": 0.7768710851669312
+      },
+      "female": {
+        "female": 0.8063414096832275,
+        "robot": 0.4743649363517761,
+        "male": 0.7124668955802917
+      },
+      "robot": {
+        "female": 0.7526698112487793,
+        "robot": 0.6595503687858582,
+        "male": 0.8290987014770508
+      },
+      "male": {
+        "female": 0.7446444034576416,
+        "robot": 0.5654921531677246,
+        "male": 0.8977106809616089
+      },
+      "female-repeat": {
+        "female": 0.7775999307632446,
+        "robot": 0.43126949667930603,
+        "male": 0.6972275376319885
+      }
+    },
+    "female_repeat_cosine": 0.992859423160553,
+    "intended_reference_preferences_passed": {
+      "female": true,
+      "robot": true,
+      "male": true
+    },
+    "reference_sources": "operator-supplied audio; source recordings and filenames not distributed",
+    "scope": "bounded reference-conditioning test, not a general speaker benchmark"
   }
 }

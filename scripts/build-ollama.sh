@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-source_dir=${PHONON_OLLAMA_SOURCE:-"$repo_dir/.cache/ollama-source"}
 output_dir=${PHONON_OLLAMA_OUTPUT:-"$repo_dir/bin"}
 patch_file="$repo_dir/patches/ollama-0.40.11-phonon-hybrid.patch"
+patch_revision=$(sha256sum "$patch_file" | cut -c1-12)
+source_dir=${PHONON_OLLAMA_SOURCE:-"$repo_dir/.cache/ollama-$patch_revision"}
 expected_commit=675150d6ad2747df1e218ef59de9194bc4a7e538
 if [[ ! -d "$source_dir/.git" && ! -f "$source_dir/.git" ]]; then
   mkdir -p "$(dirname -- "$source_dir")"
@@ -20,10 +21,12 @@ else
   git -C "$source_dir" apply "$patch_file"
 fi
 mkdir -p "$output_dir"
+mkdir -p "$repo_dir/.cache"
+printf '%s\n' "$source_dir" > "$repo_dir/.cache/source-path"
 (
   cd "$source_dir"
   GOMAXPROCS=${GOMAXPROCS:-4} go build -p 4 \
-    -ldflags '-X github.com/ollama/ollama/version.Version=0.40.11+phonon-echo.1' \
+    -ldflags '-X github.com/ollama/ollama/version.Version=0.40.11+phonon-echo.2' \
     -o "$output_dir/ollama" .
 )
 printf 'Built %s\n' "$output_dir/ollama"
