@@ -56,7 +56,7 @@ def test_runtime_identifies_itself_and_serves_standard_speech_fields(runtime):
     health = client.get("/health").json
     assert health["official_ollama"] is False
     assert health["capabilities"] == ["speech", "voice-cloning", "transcription"]
-    result = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "Read this.", "voice": "default"})
+    result = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "Read this.", "voice": "default"})
     assert result.status_code == 200
     assert result.content_type == "audio/wav"
     with wave.open(io.BytesIO(result.data)) as handle:
@@ -83,7 +83,7 @@ def test_enrolled_voices_persist_and_a_b_a_requests_keep_their_own_speaker(tmp_p
         assert result.status_code == 201
     # Recreate the app to prove profiles are loaded from disk.
     client = create_app(engine, voices_dir=tmp_path / "voices").test_client()
-    outputs = [client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "Same words.", "voice": name,
+    outputs = [client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "Same words.", "voice": name,
                                                      "response_format": "pcm"}).data for name in ["alice", "bob", "alice"]]
     assert outputs[0] == outputs[2]
     assert outputs[0] != outputs[1]
@@ -93,7 +93,7 @@ def test_enrolled_voices_persist_and_a_b_a_requests_keep_their_own_speaker(tmp_p
 
 def test_inline_reference_is_consumed_without_creating_a_profile(runtime):
     engine, client = runtime
-    result = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "Hello.",
+    result = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "Hello.",
                          "reference_audio": {"format": "wav", "data": base64.b64encode(recording()).decode()}})
     assert result.status_code == 200
     assert engine.speakers[-1] is not None
@@ -102,7 +102,7 @@ def test_inline_reference_is_consumed_without_creating_a_profile(runtime):
 
 def test_asr_consumes_uploaded_waveform_and_returns_text(runtime):
     engine, client = runtime
-    result = client.post("/v1/audio/transcriptions", data={"model": "robit/phonon-echo:clone", "file": (io.BytesIO(recording()), "ref.wav")})
+    result = client.post("/v1/audio/transcriptions", data={"model": "phonon-hybrid-v1", "file": (io.BytesIO(recording()), "ref.wav")})
     assert result.status_code == 200
     assert result.json["text"] == "Blue river eight."
     assert engine.asr_inputs[0][1] == 16000
@@ -117,7 +117,7 @@ def test_silence_transcribes_to_empty_text_without_hallucinating(runtime):
         handle.setsampwidth(2)
         handle.setframerate(16000)
         handle.writeframes(bytes(32000))
-    result = client.post("/v1/audio/transcriptions", data={"model": "robit/phonon-echo:clone",
+    result = client.post("/v1/audio/transcriptions", data={"model": "phonon-hybrid-v1",
                          "file": (io.BytesIO(payload.getvalue()), "silence.wav")})
     assert result.status_code == 200
     assert result.json["text"] == ""
@@ -132,7 +132,7 @@ def test_silence_transcribes_to_empty_text_without_hallucinating(runtime):
 ])
 def test_bad_speech_requests_fail_before_model_inference(runtime, extra):
     engine, client = runtime
-    result = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "Hello.", **extra})
+    result = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "Hello.", **extra})
     assert result.status_code == 400
     assert "error" in result.json
     assert not engine.speakers
@@ -186,7 +186,7 @@ def test_streaming_stops_future_generation_when_client_closes(tmp_path):
 
     engine = StreamingEngine()
     client = create_app(engine, voices_dir=tmp_path).test_client()
-    response = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "First. Second. Third."}, buffered=False)
+    response = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "First. Second. Third."}, buffered=False)
     assert next(response.response).startswith(b"RIFF")
     next(response.response)
     response.close()
@@ -202,7 +202,7 @@ def test_streamed_sentence_pause_is_valid_pcm(tmp_path):
             yield np.ones(2400, dtype=np.float32) * 0.1
 
     client = create_app(StreamingEngine(), voices_dir=tmp_path).test_client()
-    response = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "First. Second."})
+    response = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "First. Second."})
     assert response.status_code == 200
     with wave.open(io.BytesIO(response.data)) as handle:
         assert len(handle.readframes(handle.getnframes())) == 12000

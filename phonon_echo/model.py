@@ -21,7 +21,7 @@ import torch
 from scipy.signal import resample_poly
 
 SCHEMA = "robit.phonon-hybrid.v1"
-MODEL_ID = "robit/phonon-echo:clone"
+MODEL_ID = "phonon-hybrid-v1"
 SAMPLE_RATE = 24000
 
 

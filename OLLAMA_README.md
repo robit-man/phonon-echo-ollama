@@ -5,13 +5,14 @@ speech-recognition companion.
 
 | Tag | Capabilities | Runtime |
 | --- | --- | --- |
-| `tts` | Text to speech, default voice | Unmodified official Ollama |
-| `hybrid` | Compatibility alias of `tts` | Unmodified official Ollama |
-| `clone` | Baked voice profiles, reference cloning, TTS, English ASR | Phonon Echo extension 0.2.0 |
+| `tts-v1` | Text to speech, default voice | Unmodified official Ollama |
+| `latest` | Alias of `tts-v1` | Unmodified official Ollama |
+| `hybrid-v1` | Compatibility alias of `tts-v1` | Unmodified official Ollama |
+| `clone-asr-v2` | Baked voice profiles, reference cloning, TTS, English ASR | Phonon Echo extension 0.2.0 |
 
 ## Included voice profiles
 
-The **`clone`** companion includes these prepared profiles in its weights:
+The **`clone-asr-v2`** companion includes these prepared profiles in its weights:
 
 | `voice` | Profile |
 | --- | --- |
@@ -22,7 +23,8 @@ The **`clone`** companion includes these prepared profiles in its weights:
 
 Select a profile by name. No reference recording or enrollment request is
 needed to use a baked profile. These profiles use the companion extension;
-the official-binary TTS tags provide `default`.
+the official-binary TTS tags provide `default`. The older `clone-asr-v1` tag
+does not include the new profiles.
 
 ## Text to speech
 
@@ -31,12 +33,12 @@ executes the installed tag's Phonon/Mimi weights inside Ollama. No adapter is
 required for the TTS tags.
 
 ```bash
-ollama pull robit/phonon-echo:tts
+ollama pull robit/phonon-echo:tts-v1
 
 curl http://localhost:11434/v1/audio/speech \
   -H 'Content-Type: application/json' \
   -d '{
-    "model": "robit/phonon-echo:tts",
+    "model": "robit/phonon-echo:tts-v1",
     "input": "Hello from Phonon Echo.",
     "voice": "default"
   }' \
@@ -55,7 +57,7 @@ as `ollama-linux-amd64-mlx.tar.zst`. See the
 
 ## Optional voice cloning and ASR
 
-Use **`robit/phonon-echo:clone`** with the public
+Use **`robit/phonon-echo:clone-asr-v2`** with the public
 [Phonon Echo adapter and runner extension](https://github.com/robit-man/phonon-echo-ollama#cloning-and-asr-extension).
 This companion requires the extension; stock Ollama does not execute its
 reference encoder, voice converter, or Whisper graph. The stock speech API has
@@ -64,7 +66,7 @@ no per-request reference-audio field.
 After installing the extension and starting it on port 11471:
 
 ```bash
-OLLAMA_HOST=127.0.0.1:11471 ./bin/ollama pull robit/phonon-echo:clone
+OLLAMA_HOST=127.0.0.1:11471 ./bin/ollama pull robit/phonon-echo:clone-asr-v2
 ```
 
 Use a baked voice:
@@ -72,7 +74,7 @@ Use a baked voice:
 ```bash
 curl http://127.0.0.1:11471/v1/audio/speech \
   -H 'Content-Type: application/json' \
-  -d '{"model":"robit/phonon-echo:clone","input":"Hello from Phonon Echo.","voice":"female"}' \
+  -d '{"model":"robit/phonon-echo:clone-asr-v2","input":"Hello from Phonon Echo.","voice":"female"}' \
   --output female.wav
 ```
 
@@ -89,7 +91,7 @@ import urllib.request
 from pathlib import Path
 
 payload = {
-    "model": "robit/phonon-echo:clone",
+    "model": "robit/phonon-echo:clone-asr-v2",
     "input": "The small robot speaks clearly.",
     "voice": "default",
     "reference_audio": {
@@ -110,7 +112,7 @@ Transcribe English audio with the same companion tag:
 
 ```bash
 curl http://127.0.0.1:11471/v1/audio/transcriptions \
-  -F model=robit/phonon-echo:clone \
+  -F model=robit/phonon-echo:clone-asr-v2 \
   -F file=@recording.wav
 ```
 
