@@ -6,10 +6,9 @@ Ollama-managed reference-cloning and ASR runner.
 
 | Model tag | Official Ollama 0.40.11 | This extension |
 | --- | --- | --- |
-| `robit/phonon-echo:tts-v1` | TTS | Not needed |
-| `robit/phonon-echo:latest` | Same native TTS model | Not needed |
-| `robit/phonon-echo:hybrid-v1` | Same native TTS model; compatibility alias | Not needed |
-| `robit/phonon-echo:clone-asr-v2` | Unsupported composite architecture | TTS, baked female/robot/male profiles, reference cloning, English ASR |
+| `robit/phonon-echo:tts` | TTS | Not needed |
+| `robit/phonon-echo:hybrid` | Same native TTS model; compatibility alias | Not needed |
+| `robit/phonon-echo:clone` | Unsupported composite architecture | TTS, baked female/robot/male profiles, reference cloning, English ASR |
 
 [OLLAMA_README.md](OLLAMA_README.md) is the ready-to-publish model-page README.
 
@@ -18,10 +17,10 @@ Ollama-managed reference-cloning and ASR runner.
 Use unmodified official Ollama 0.40.11 with its official MLX runtime:
 
 ```bash
-ollama pull robit/phonon-echo:tts-v1
+ollama pull robit/phonon-echo:tts
 curl http://127.0.0.1:11434/v1/audio/speech \
   -H 'Content-Type: application/json' \
-  -d '{"model":"robit/phonon-echo:tts-v1","input":"Hello from Phonon Echo.","voice":"default"}' \
+  -d '{"model":"robit/phonon-echo:tts","input":"Hello from Phonon Echo.","voice":"default"}' \
   --output speech.wav
 ```
 
@@ -70,13 +69,12 @@ kept in ignored `.cache/` and `bin/` directories.
 The daemon listens on `127.0.0.1:11471`. From another terminal in this checkout:
 
 ```bash
-OLLAMA_HOST=127.0.0.1:11471 bin/ollama pull robit/phonon-echo:clone-asr-v2
+OLLAMA_HOST=127.0.0.1:11471 bin/ollama pull robit/phonon-echo:clone
 ```
 
 For an existing checkout, run `git pull`, repeat setup and build, then restart
 the extension daemon. Patch revisions build in separate source directories, so
-upgrading does not overwrite an older patched checkout. The older
-`clone-asr-v1` model remains available without the new baked profiles.
+upgrading does not overwrite an older patched checkout.
 
 The launch script supplies these runner settings automatically:
 
@@ -93,14 +91,14 @@ that official workload.
 
 ### Use the baked default profiles
 
-`clone-asr-v2` ships `default`, `female`, `robot`, and `male`. The three cloned
+`clone` ships `default`, `female`, `robot`, and `male`. The three cloned
 profiles are registered model buffers and travel with the checkpoint. You do
 not need the source recordings or a separate enrollment directory.
 
 ```bash
 curl http://127.0.0.1:11471/v1/audio/speech \
   -H 'Content-Type: application/json' \
-  -d '{"model":"robit/phonon-echo:clone-asr-v2","input":"The small robot speaks clearly.","voice":"robot"}' \
+  -d '{"model":"robit/phonon-echo:clone","input":"The small robot speaks clearly.","voice":"robot"}' \
   --output robot.wav
 ```
 
@@ -118,7 +116,7 @@ import json
 from pathlib import Path
 
 Path("request.json").write_text(json.dumps({
-    "model": "robit/phonon-echo:clone-asr-v2",
+    "model": "robit/phonon-echo:clone",
     "input": "The small robot speaks clearly.",
     "voice": "default",
     "reference_audio": {
@@ -141,7 +139,7 @@ create a persistent speaker profile.
 
 ```bash
 curl http://127.0.0.1:11471/v1/audio/transcriptions \
-  -F model=robit/phonon-echo:clone-asr-v2 \
+  -F model=robit/phonon-echo:clone \
   -F file=@recording.wav
 ```
 
@@ -178,7 +176,7 @@ To bake additional named profiles from your own references into a new export:
 ```bash
 .venv/bin/python -m phonon_echo.bake_voices \
   --models-directory "$HOME/.ollama/models" \
-  --source-model robit/phonon-echo:clone-asr-v1 \
+  --source-model robit/phonon-echo:clone \
   --voice narrator=reference.wav --out outputs/my-voices
 ```
 

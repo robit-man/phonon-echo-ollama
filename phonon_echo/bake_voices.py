@@ -34,7 +34,7 @@ def bake(*, models_directory, source_model, voices, output):
                           "embedding_shape": list(embedding.shape), "embedding_norm": float(embedding.norm())}
         print(json.dumps({"baked_voice": name, "active_seconds": round(len(audio) / rate, 3)}), flush=True)
     manifest = model.save_pretrained(output)
-    card = {"name": "Phonon Echo", "tag": "robit/phonon-echo:clone-asr-v2",
+    card = {"name": "Phonon Echo", "tag": "robit/phonon-echo:clone",
             "available_voices": model.voice_names(), "source_recordings_in_checkpoint": False,
             "requires_extension": "phonon-echo.2", "official_binary_supported": False,
             "setup": "https://github.com/robit-man/phonon-echo-ollama#cloning-and-asr-extension",
@@ -55,7 +55,7 @@ def bake(*, models_directory, source_model, voices, output):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models-directory", type=Path, default=Path.home() / ".ollama/models")
-    parser.add_argument("--source-model", default="robit/phonon-echo:clone-asr-v1")
+    parser.add_argument("--source-model", default="robit/phonon-echo:clone")
     parser.add_argument("--voice", action="append", required=True, metavar="NAME=RECORDING")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)

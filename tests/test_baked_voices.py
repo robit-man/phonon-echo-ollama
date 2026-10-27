@@ -58,7 +58,7 @@ def test_named_api_voices_work_without_enrollment_files_and_cannot_be_overwritte
     client = create_app(engine, voices_dir=tmp_path).test_client()
     assert client.get("/v1/audio/voices").json["voices"] == ["default", "female", "male", "robot"]
     for name in ["female", "robot", "male", "female"]:
-        response = client.post("/v1/audio/speech", json={"model": "phonon-hybrid-v1", "input": "A new sentence.",
+        response = client.post("/v1/audio/speech", json={"model": "robit/phonon-echo:clone", "input": "A new sentence.",
                                                        "voice": name}, buffered=True)
         assert response.status_code == 200
     assert engine.speakers == [1, 2, 3, 1]

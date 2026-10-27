@@ -2,7 +2,7 @@
   "tested_on": "2026-10-26",
   "official_ollama_version": "0.40.11",
   "official_tts": {
-    "tag": "robit/phonon-echo:tts-v1",
+    "tag": "robit/phonon-echo:tts",
     "manifest_sha256": "6fc9fdcb2a81d1beaf9dd82246fd670a52120687687c4356322a63b4f2fde1eb",
     "fresh_registry_pull": true,
     "wav_pcm_passed": true,
@@ -14,7 +14,6 @@
     "transcription_after_case_punctuation_normalization": "exact for all three"
   },
   "extension": {
-    "tag": "robit/phonon-echo:clone-asr-v1",
     "manifest_sha256": "b0df2b8cdeb97d80d7ad8dd967d7d9ab49202d23cb891d99cd0662fdb3a978ce",
     "default_A_B_A_sentence": "The small robot speaks clearly.",
     "default_A_B_A_transcription": "exact for all four",
@@ -61,7 +60,7 @@
     "raw_pcm_passed": true,
     "cuda_used": false
   },
-  "baked_voice_profiles_v2": {
+  "baked_voice_profiles": {
     "voices": [
       "default",
       "female",
